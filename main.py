@@ -27,7 +27,7 @@ pygame.init()
 pygame.mixer.init()
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
-pygame.display.set_caption("Platformer Game v1.2")
+pygame.display.set_caption("Platformer Game v1.2.0")
 
 #* 遊玩資料初始化
 play_time_per_tick = 0
@@ -39,7 +39,6 @@ data = {"highest_score": 0,
        "death_count": 0}
 
 running = True
-isfirst = True
 current_platform_speed = PLATFORM_Y_SPEED
 platform_change_up = 0
 game_state = "START_MENU"
@@ -93,7 +92,7 @@ all_sprites = pygame.sprite.Group()
 player1 = Player(front_player, walk_player, jump_player, pop_sound, jump_sound)
 players.add(player1)
 
-platform1 = Platform(current_platform_speed, platform_list, isfirst)
+platform1 = Platform(current_platform_speed, platform_list)
 platforms.add(platform1)
 
 all_sprites.add(platforms, pickups, players)
@@ -102,10 +101,10 @@ all_sprites.add(platforms, pickups, players)
 def manage_platforms():
     
     highest_platform = min(p.rect.top for p in platforms)
-    randomGap = random.randint(180,240)
+    randomGap = random.randint(140,180)
     
     if highest_platform > randomGap:
-        p = Platform(current_platform_speed, platform_list, isfirst)
+        p = Platform(current_platform_speed, platform_list)
         platforms.add(p)
         all_sprites.add(p)
         
@@ -120,8 +119,9 @@ def manage_pickups(p):
     pickups.add(pickup)
     all_sprites.add(pickup)
     
-isfirst = False
 
+
+background_music.set_volume(background_music.get_volume()/3)
 background_music.play(loops=-1)
 
 while running:
@@ -159,6 +159,7 @@ while running:
             
             #* 初始化設定
             isfirst = True
+            Platform.isFirst = True
             platform_change_up = 0
             current_platform_speed = PLATFORM_Y_SPEED
             game_state = "START_MENU"
@@ -167,7 +168,7 @@ while running:
             #* 重新建立
             player1 = Player(front_player, walk_player, jump_player, pop_sound, jump_sound)
             players.add(player1)
-            platform1 = Platform(PLATFORM_Y_SPEED, platform_list, isfirst)
+            platform1 = Platform(PLATFORM_Y_SPEED, platform_list)
             platforms.add(platform1)
             all_sprites.add(platforms, pickups, players)
             

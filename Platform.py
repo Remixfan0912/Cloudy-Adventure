@@ -19,8 +19,8 @@ import random
 from Settings import *
 
 class Platform(pygame.sprite.Sprite):
-
-    def __init__(self, y_speed, platform_list, isfirst):
+    isFirst = True
+    def __init__(self, y_speed, platform_list):
         super().__init__()
         
         self.choice = random.randint(0,2)
@@ -38,10 +38,11 @@ class Platform(pygame.sprite.Sprite):
         # pygame.draw.rect(self.image, ORANGE, (0,0,self.rect.width,self.rect.height), 2)
         
         self.rect.top = 15
-        if isfirst:
+        if Platform.isFirst:
             self.rect.centerx = WIDTH/2
+            Platform.isFirst = False
         else:
-            self.rect.centerx = random.randint(self.rect.width//2+30, WIDTH-self.rect.width//2-30)
+            self.rect.centerx = random.randint(self.rect.width//2+150, WIDTH-self.rect.width//2-150)
             
         self.pos = [float(self.rect.centerx), float(self.rect.centery)]
         self.velocity = [random.choice(list(PLATFORM_X_SPEED)), y_speed]

@@ -27,9 +27,6 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = (WIDTH/2, 15)
         
-        #! player的碰撞箱顯示
-        pygame.draw.rect(self.image, PURPLE, (0,0,self.rect.width, self.rect.height), 2)
-        
         #* 玩家圖片、音檔
         self.walk_player = pygame.transform.scale(walk_player, (53, 45))
         self.jump_player = pygame.transform.scale(jump_player, (53, 45))
@@ -39,7 +36,7 @@ class Player(pygame.sprite.Sprite):
         #* 處理玩家位置、速度、加速度
         self.pos = [float(self.rect.centerx), float(self.rect.centery)]
         self.velocity = [0,0]
-        self.acceleration = [0,0]
+        self.acceleration = [PLAYER_ACCELERATION,0]
         
         #* 處理玩家能力數值
         self.player_jump_v = PLAYER_JUMP_V
@@ -80,10 +77,10 @@ class Player(pygame.sprite.Sprite):
         self.pos[0] += self.velocity[0]
         self.rect.centerx = self.pos[0]
         
-    #! 暫時偵測地面
-    # def border(self):
-    #     if self.rect.bottom > HEIGHT:
-    #         self.rect.bottom = HEIGHT
+    #! 偵測地面
+    def border(self):
+        if self.rect.bottom > HEIGHT:
+            self.rect.bottom = HEIGHT
 
     def jump(self):
         self.jump_sound.play()
@@ -96,9 +93,7 @@ class Player(pygame.sprite.Sprite):
 
     def key_event(self):
         kp = pygame.key.get_pressed()
-                
         if kp[pygame.K_LEFT]:
-            self.image = pygame.transform.flip(self.walk_player, True, False)
             self.pos[0] -= self.player_x_speed
             self.rect.centerx = self.pos[0]
         
@@ -184,5 +179,6 @@ class Player(pygame.sprite.Sprite):
                 self.buffList[2] = False
                 self.g = G
     
+    #! player的碰撞箱顯示
     def hitbox(self):
         pygame.draw.rect(self.image, PURPLE, (0,0,self.rect.width, self.rect.height), 2)
