@@ -17,6 +17,7 @@
 import pygame
 import os
 import datetime
+import random
 from Platform import *
 from Player import *
 from Pickups import *
@@ -39,8 +40,6 @@ data = {"highest_score": 0,
        "death_count": 0}
 
 running = True
-current_platform_speed = PLATFORM_Y_SPEED
-platform_change_up = 0
 game_state = "START_MENU"
 
 #* 引入字體
@@ -49,7 +48,6 @@ def draw_text(surface, text, size, x, y, color, align="center"):
     font = pygame.font.Font(font_type, size)
     text_surface = font.render(text, True, color)
     text_rect = text_surface.get_rect()
-    # pygame.draw.rect(text_surface, ORANGE, (0,0,text_rect.width, text_rect.height), 2)
     if align == "left":
         text_rect.left = x
     else:
@@ -58,29 +56,27 @@ def draw_text(surface, text, size, x, y, color, align="center"):
     surface.blit(text_surface, text_rect)
 
 #* 引入圖片檔
+
 start_bg = pygame.image.load(os.path.join("img", "start_bg.png")).convert_alpha()
+start_bg = pygame.transform.scale(start_bg, (WIDTH, HEIGHT))
+background = pygame.image.load(os.path.join("img", "background.png")).convert_alpha()
+background = pygame.transform.scale(background, (WIDTH, HEIGHT))
 
 platform1_img = pygame.image.load(os.path.join("img", "platform1.png")).convert_alpha()
 platform2_img = pygame.image.load(os.path.join("img", "platform2.png")).convert_alpha()
 platform3_img = pygame.image.load(os.path.join("img", "platform3.png")).convert_alpha()
-
 platform_list = [platform1_img, platform2_img, platform3_img]
 
-front_player = pygame.image.load(os.path.join("img", "front_player.png")).convert_alpha()
-jump_player = pygame.image.load(os.path.join("img", "jump_player.png")).convert_alpha()
-walk_player = pygame.image.load(os.path.join("img", "walk_player.png")).convert_alpha()
-background = pygame.image.load(os.path.join("img", "background.png")).convert_alpha()
 
 feather = pygame.image.load(os.path.join("img", "feather.png")).convert_alpha()
 jump = pygame.image.load(os.path.join("img", "jump.png")).convert_alpha()
 speed = pygame.image.load(os.path.join("img", "speed.png")).convert_alpha()
-
 pickup_list = [speed, jump, feather]
 
 #* 引入音檔
 background_music = pygame.mixer.Sound(os.path.join("sound", "background_music.mp3"))
-pop_sound = pygame.mixer.Sound(os.path.join("sound", "pop.mp3"))
-jump_sound = pygame.mixer.Sound(os.path.join("sound", "jumping.mp3"))
+background_music.set_volume(background_music.get_volume()/3)
+background_music.play(loops=-1)
 
 #* 建立群組
 players = pygame.sprite.Group()
@@ -89,10 +85,10 @@ platforms = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 
 #* 建立玩家、一個平台、把三個群組加入all_sprite
-player1 = Player(front_player, walk_player, jump_player, pop_sound, jump_sound)
+player1 = Player()
 players.add(player1)
 
-platform1 = Platform(current_platform_speed, platform_list)
+platform1 = Platform(platform_list)
 platforms.add(platform1)
 
 all_sprites.add(platforms, pickups, players)
@@ -101,10 +97,14 @@ all_sprites.add(platforms, pickups, players)
 def manage_platforms():
     
     highest_platform = min(p.rect.top for p in platforms)
-    randomGap = random.randint(140,180)
+    
+    #! 注意Platform.y_speed可能會錯誤: global
+    speed_factor = Platform.y_speed / PLATFORM_Y_SPEED
+    randomGap = random.randint(140, 180) * speed_factor
+    if randomGap > 200 : randomGap = 200
     
     if highest_platform > randomGap:
-        p = Platform(current_platform_speed, platform_list)
+        p = Platform(platform_list)
         platforms.add(p)
         all_sprites.add(p)
         
@@ -114,15 +114,11 @@ def manage_platforms():
             manage_pickups(p)
 
 #* 生成道具函式，當平台生成時，道具也有生成(%)，則記錄該平台x、top座標，並配合當前平台速度賦予道具
-def manage_pickups(p):
+def manage_pickups(p:Platform):
     pickup = Pickups(p, pickup_list)
     pickups.add(pickup)
     all_sprites.add(pickup)
     
-
-
-background_music.set_volume(background_music.get_volume()/3)
-background_music.play(loops=-1)
 
 while running:
     clock.tick(FPS)
@@ -137,7 +133,7 @@ while running:
 
     #* 根據狀態進行邏輯更新與畫面渲染
     if game_state == "START_MENU":
-        screen.blit(pygame.transform.scale(start_bg, (WIDTH, HEIGHT)), (0, 0))
+        screen.blit(start_bg, (0, 0))
         draw_text(screen, "最高分數 : " + str(data["highest_score"]), 22, 20, 10, MENU_DATA_COLOR, align="left")
         draw_text(screen, "死亡次數 : " + str(data["death_count"]), 22, 20, 180, MENU_DATA_COLOR, align="left")
         draw_text(screen, "遊戲時間 : " + str(data["total_play_time"]), 22, 20, 40, MENU_DATA_COLOR, align="left")
@@ -158,37 +154,26 @@ while running:
             pickups.empty()
             
             #* 初始化設定
-            isfirst = True
             Platform.isFirst = True
-            platform_change_up = 0
-            current_platform_speed = PLATFORM_Y_SPEED
+            Platform.y_speed = PLATFORM_Y_SPEED 
             game_state = "START_MENU"
             score = 0
             
             #* 重新建立
-            player1 = Player(front_player, walk_player, jump_player, pop_sound, jump_sound)
+            player1 = Player()
             players.add(player1)
-            platform1 = Platform(PLATFORM_Y_SPEED, platform_list)
+            platform1 = Platform(platform_list)
             platforms.add(platform1)
             all_sprites.add(platforms, pickups, players)
-            
-            #* 生成Platform後，將isFirst關閉
-            isfirst = False
         
         score+=1
-        platform_change_up+=1
         play_time_per_tick+=1
         
+        #* 遊戲時間計算
         if play_time_per_tick >= 60:
             play_time_per_tick = 0
             play_time_s += 1
             play_time = str(datetime.timedelta(seconds=play_time_s))
-        
-        if platform_change_up >= PLATFORM_RATIO_CHANGE_SPAN*60:
-            current_platform_speed += current_platform_speed*PLATFORM_Y_SPEED_RATIO
-            for p in platforms:
-                p.velocity[1] = current_platform_speed 
-            platform_change_up = 0
         
         player1.update(platforms, pickups)
         manage_platforms()    
@@ -196,7 +181,7 @@ while running:
         pickups.update()
         
         #* 畫面渲染
-        screen.blit(pygame.transform.scale(background, (WIDTH, HEIGHT)), (0,0)) 
+        screen.blit(background, (0,0)) 
         all_sprites.draw(screen)
         draw_text(screen, str(score), 22, WIDTH/2, 10, WHITE)
         draw_text(screen, play_time, 22, WIDTH-60, HEIGHT-50, WHITE)
