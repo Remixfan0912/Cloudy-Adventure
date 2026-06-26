@@ -15,23 +15,32 @@
 #*################################################################
 
 import pygame
+import os
 from Settings import *
 
 class Player(pygame.sprite.Sprite):
 
-    def __init__(self, player_img, walk_player, jump_player, pop_sound, jump_sound):
+    def __init__(self):
         super().__init__()
 
+        self.front_p = pygame.image.load(os.path.join("img", "front_player.png")).convert_alpha()
+        self.jump_p = pygame.image.load(os.path.join("img", "jump_player.png")).convert_alpha()
+        self.walk_p = pygame.image.load(os.path.join("img", "walk_player.png")).convert_alpha()
+        
         #* 玩家渲染
-        self.image = pygame.transform.scale(player_img, (53, 45))
+        self.image = pygame.transform.scale(self.front_p, PLAYER_PIC_SIZE)
         self.rect = self.image.get_rect()
         self.rect.center = (WIDTH/2, 15)
         
         #* 玩家圖片、音檔
-        self.walk_player = pygame.transform.scale(walk_player, (53, 45))
-        self.jump_player = pygame.transform.scale(jump_player, (53, 45))
-        self.pop_sound = pop_sound
-        self.jump_sound = jump_sound
+        self.walk_player = pygame.transform.scale(self.walk_p, PLAYER_PIC_SIZE)
+        self.walk_L_player = pygame.transform.flip(self.walk_player, True, False) 
+        self.jump_player = pygame.transform.scale(self.jump_p, PLAYER_PIC_SIZE)
+        self.jump_L_player = pygame.transform.flip(self.jump_player, True, False) 
+        
+        self.pop_sound = pygame.mixer.Sound(os.path.join("sound", "pop.mp3"))
+        self.jump_sound = pygame.mixer.Sound(os.path.join("sound", "jumping.mp3"))
+        self.oof_sound = pygame.mixer.Sound(os.path.join("sound", "oof.mp3"))
         
         #* 處理玩家位置、速度、加速度
         self.pos = [float(self.rect.centerx), float(self.rect.centery)]
@@ -66,6 +75,7 @@ class Player(pygame.sprite.Sprite):
             return
         
         if self.rect.top >= HEIGHT:
+            self.oof_sound.play()
             self.kill()
             return
         
@@ -87,22 +97,15 @@ class Player(pygame.sprite.Sprite):
         self.velocity[1] += self.player_jump_v
         self.pos[1] += self.velocity[1]
         self.rect.centery = self.pos[1]
-    
-    def isAir(self):
-        return not self.rect.bottom == HEIGHT
 
     def key_event(self):
         kp = pygame.key.get_pressed()
-        if kp[pygame.K_LEFT]:
-            self.pos[0] -= self.player_x_speed
-            self.rect.centerx = self.pos[0]
-        
-        if kp[pygame.K_RIGHT]:
-            self.pos[0] += self.player_x_speed
-            self.rect.centerx = self.pos[0]
+        if kp[pygame.K_LEFT] : self.velocity[0] = self.player_x_speed*-1
+        if kp[pygame.K_RIGHT] : self.velocity[0] = self.player_x_speed
             
         if kp[pygame.K_UP]:
-            if not self.isAir() or self.is_stand_on_platform:
+            if self.is_stand_on_platform:
+                self.is_stand_on_platform = False
                 self.jump()
                 
     def animate(self):
@@ -110,14 +113,10 @@ class Player(pygame.sprite.Sprite):
                 
         if kp[pygame.K_UP]:
             self.image = self.jump_player
-            if kp[pygame.K_LEFT]:
-                self.image = pygame.transform.flip(self.image, True, False)      
+            if kp[pygame.K_LEFT]: self.image = self.jump_L_player
         else:      
-            if kp[pygame.K_LEFT]:
-                self.image = pygame.transform.flip(self.walk_player, True, False)
-            
-            if kp[pygame.K_RIGHT]:
-                self.image = self.walk_player      
+            if kp[pygame.K_LEFT]: self.image = self.walk_L_player
+            if kp[pygame.K_RIGHT]: self.image = self.walk_player      
                 
     def check_platform_collide(self, platform_group):
         self.is_stand_on_platform = False
