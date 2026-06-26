@@ -23,10 +23,12 @@ class Pickups(pygame.sprite.Sprite):
 
     def __init__(self, platform:Platform, pickup_list):
         super().__init__()
-    
+
+        #* 道具隨機選擇
         self.buff = random.choice(list(PICKUP_NAME_LIST.keys()))
         self.image = pygame.transform.scale(pickup_list[self.buff], (pickup_list[self.buff].get_size()[0]/3, pickup_list[self.buff].get_size()[1]/3))
     
+        #* 定位道具(追蹤平台)
         self.rect = self.image.get_rect()
         self.rect.centerx = platform.rect.centerx
         self.rect.bottom = platform.rect.top-1
