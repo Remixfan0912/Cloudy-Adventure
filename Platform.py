@@ -20,9 +20,9 @@ from Settings import *
 
 class Platform(pygame.sprite.Sprite):
     isFirst = True
-    def __init__(self, y_speed, platform_list):
+    y_speed = PLATFORM_Y_SPEED
+    def __init__(self, platform_list):
         super().__init__()
-        
         self.choice = random.randint(0,2)
         if self.choice == 0:
             self.image = pygame.transform.scale(platform_list[self.choice], (platform_list[self.choice].get_size()[0]/2, platform_list[self.choice].get_size()[1]/5))
@@ -42,14 +42,18 @@ class Platform(pygame.sprite.Sprite):
             self.rect.centerx = WIDTH/2
             Platform.isFirst = False
         else:
-            self.rect.centerx = random.randint(self.rect.width//2+150, WIDTH-self.rect.width//2-150)
+            self.rect.centerx = random.randint(self.rect.width//2+200, WIDTH-self.rect.width//2-200)
             
         self.pos = [float(self.rect.centerx), float(self.rect.centery)]
-        self.velocity = [random.choice(list(PLATFORM_X_SPEED)), y_speed]
+        self.velocity = [random.choice(list(PLATFORM_X_SPEED)), Platform.y_speed]
+        
+        #* 平台加速計時(每120ticks乘一次)
+        self.timer = 0
         
     
     def update(self): 
         self.border()
+        self.changing_y_speed()
         self.rect.centery += self.velocity[1]
         self.rect.centerx += self.velocity[0]
         if self.rect.top > HEIGHT:
@@ -59,5 +63,11 @@ class Platform(pygame.sprite.Sprite):
         if self.rect.left <= 0 or self.rect.right >= WIDTH:
             self.velocity[0] *= -1
     
-            
+    def changing_y_speed(self):
+        self.timer += 1
+        if self.timer >= PLATFORM_RATIO_CHANGE_SPAN*60:
+            Platform.y_speed*=PLATFORM_Y_SPEED_RATIO
+            if Platform.y_speed>=2: Platform.y_speed=2
+            self.timer = 0
+        self.velocity[1] = Platform.y_speed
 
