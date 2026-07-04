@@ -28,7 +28,7 @@ pygame.init()
 pygame.mixer.init()
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
-pygame.display.set_caption("Platformer Game v1.2.0")
+pygame.display.set_caption("Cloudy Adventure v1.2.0")
 
 #* 遊玩資料初始化
 play_time_per_tick = 0
@@ -56,7 +56,6 @@ def draw_text(surface, text, size, x, y, color, align="center"):
     surface.blit(text_surface, text_rect)
 
 #* 引入圖片檔
-
 start_bg = pygame.image.load(os.path.join("img", "start_bg.png")).convert_alpha()
 start_bg = pygame.transform.scale(start_bg, (WIDTH, HEIGHT))
 background = pygame.image.load(os.path.join("img", "background.png")).convert_alpha()
@@ -75,7 +74,7 @@ pickup_list = [speed, jump, feather]
 
 #* 引入音檔
 background_music = pygame.mixer.Sound(os.path.join("sound", "background_music.mp3"))
-background_music.set_volume(background_music.get_volume()/3)
+background_music.set_volume(background_music.get_volume()/5)
 background_music.play(loops=-1)
 
 #* 建立群組
@@ -98,9 +97,8 @@ def manage_platforms():
     
     highest_platform = min(p.rect.top for p in platforms)
     
-    #! 注意Platform.y_speed可能會錯誤: global
     speed_factor = Platform.y_speed / PLATFORM_Y_SPEED
-    randomGap = random.randint(140, 180) * speed_factor
+    randomGap = random.randint(130, 160) * speed_factor
     if randomGap > 200 : randomGap = 200
     
     if highest_platform > randomGap:
@@ -140,6 +138,7 @@ while running:
     
     else:
         #* 邏輯更新
+        
         if not players:
             #* 更新data
             data["death_count"] += 1
@@ -187,6 +186,6 @@ while running:
         draw_text(screen, play_time, 22, WIDTH-60, HEIGHT-50, WHITE)
     
     #* 畫面更新    
-    pygame.display.update()
+    pygame.display.flip()
 
 pygame.quit()
