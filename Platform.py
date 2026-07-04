@@ -32,30 +32,27 @@ class Platform(pygame.sprite.Sprite):
             self.image = pygame.transform.scale(platform_list[self.choice], (platform_list[self.choice].get_size()[0], platform_list[self.choice].get_size()[1]/2))
         
         self.rect = self.image.get_rect()
-        
-        #! platform的碰撞箱測試
-        # self.rect.inflate(-20,-20)
-        # pygame.draw.rect(self.image, ORANGE, (0,0,self.rect.width,self.rect.height), 2)
-        
         self.rect.top = 15
+        
         if Platform.isFirst:
             self.rect.centerx = WIDTH/2
             Platform.isFirst = False
         else:
-            self.rect.centerx = random.randint(self.rect.width//2+200, WIDTH-self.rect.width//2-200)
+            self.rect.centerx = random.randint(self.rect.width//2+300, WIDTH-self.rect.width//2-300)
             
-        self.pos = [float(self.rect.centerx), float(self.rect.centery)]
-        self.velocity = [random.choice(list(PLATFORM_X_SPEED)), Platform.y_speed]
+        #! platform的碰撞箱測試
+        # self.rect.inflate(-20,-20)
+        # pygame.draw.rect(self.image, ORANGE, (0,0,self.rect.width,self.rect.height), 2)
+        
+        self.velocity = [random.choice(PLATFORM_X_SPEED), Platform.y_speed]
         
         #* 平台加速計時(每120ticks乘一次)
         self.timer = 0
         
-    
     def update(self): 
         self.border()
-        self.changing_y_speed()
-        self.rect.centery += self.velocity[1]
-        self.rect.centerx += self.velocity[0]
+        self.change_y_speed()
+        self.change_position()
         if self.rect.top > HEIGHT:
             self.kill()
     
@@ -63,7 +60,11 @@ class Platform(pygame.sprite.Sprite):
         if self.rect.left <= 0 or self.rect.right >= WIDTH:
             self.velocity[0] *= -1
     
-    def changing_y_speed(self):
+    def change_position(self):
+        self.rect.centery += self.velocity[1]
+        self.rect.centerx += self.velocity[0]
+    
+    def change_y_speed(self):
         self.timer += 1
         if self.timer >= PLATFORM_RATIO_CHANGE_SPAN*60:
             Platform.y_speed*=PLATFORM_Y_SPEED_RATIO
