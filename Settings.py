@@ -14,9 +14,10 @@
 #*                                                               #
 #*################################################################
 
+
+#* 遊戲資訊
 WIDTH = 1280
 HEIGHT = 720
-
 FPS = 60
 
 BLACK = (0,0,0)
@@ -33,7 +34,7 @@ MENU_DATA_COLOR = (194, 224, 252)
 
 #* 玩家資訊
 G = 0.5
-PLAYER_JUMP_V = -14
+PLAYER_JUMP_V = -15
 PLAYER_X_SPEED = 5
 PLAYER_ACCELERATION = 0.1
 PLAYER_PIC_SIZE = (53, 45)
@@ -42,19 +43,15 @@ PLAYER_PIC_SIZE = (53, 45)
 PLATFORM_WIDTH = 300
 PLATFORM_HEIGHT = 8
 PLATFORM_Y_SPEED = 0.5
-PLATFORM_Y_SPEED_RATIO = 1.1
+PLATFORM_Y_SPEED_RATIO = 1.05
 PLATFORM_RATIO_CHANGE_SPAN = 2 #! second
 PLATFORM_X_SPEED = range(-3,5,2)
 
 #* 道具資訊
 PICKUPS_SPAWN_RATE = 10 #! 這邊最後會這樣 --> r = random.randint(1, PICKUPS_SPAWN_RATE) 然後抓個數字去比對跟r是否相同(10%機率會true)
 PICKUP_NAME_LIST = {0:"Speed", 1:"JumpHeight", 2:"FeatherFlight"}
-# PICKUP_COLOR_LIST = {0:ORANGE, 1:GREEN, 2:RED}
-PICKUP_SPEED_RATIO = 3
-PICKUP_JUMPVELOCITY_RATIO = 1.5
+PICKUP_SPEED_RATIO = 2
+PICKUP_JUMPVELOCITY_RATIO = 1.2
 PICKUP_GRAVITY_RATIO = 0.6
-
 POWERUP_TIME = 3 #! second
 
-#* 分數資訊
-SCORE_RATIO = 10
