@@ -27,7 +27,7 @@ class Player(pygame.sprite.Sprite):
         self.jump_p = pygame.image.load(os.path.join("img", "jump_player.png")).convert_alpha()
         self.walk_p = pygame.image.load(os.path.join("img", "walk_player.png")).convert_alpha()
         
-        #* 玩家渲染
+        #* 玩家渲染、定位
         self.image = pygame.transform.scale(self.front_p, PLAYER_PIC_SIZE)
         self.rect = self.image.get_rect()
         self.rect.center = (WIDTH/2, 15)
@@ -62,6 +62,7 @@ class Player(pygame.sprite.Sprite):
     def update(self, platform_group, pickup_group):
         # self.hitbox()
         self.position_change()
+        self.penatrate()
         self.timer_detect()
         self.key_event()
         self.gravity()
@@ -118,7 +119,7 @@ class Player(pygame.sprite.Sprite):
             if kp[pygame.K_LEFT]: self.image = self.walk_L_player
             if kp[pygame.K_RIGHT]: self.image = self.walk_player      
                 
-    def check_platform_collide(self, platform_group):
+    def check_platform_collide(self, platform_group:pygame.sprite.Group):
         self.is_stand_on_platform = False
 
         hits = pygame.sprite.spritecollide(self, platform_group, False)
@@ -126,7 +127,7 @@ class Player(pygame.sprite.Sprite):
         for platform in hits:
             if self.velocity[1] >= 0:
                 self.rect.bottom = platform.rect.top   
-                self.pos[1] = float(self.rect.centery) 
+                self.pos[1] = float(self.rect.centery)
                 self.velocity[1] = platform.velocity[1]        
                 self.velocity[0] = platform.velocity[0]       
                 self.is_stand_on_platform = True       
@@ -181,3 +182,11 @@ class Player(pygame.sprite.Sprite):
     #! player的碰撞箱顯示
     def hitbox(self):
         pygame.draw.rect(self.image, PURPLE, (0,0,self.rect.width, self.rect.height), 2)
+    
+    def penetrate(self):
+        if self.rect.centerx < 0:
+            self.pos[0] = WIDTH
+            self.rect.centerx = self.pos[0]
+        if self.rect.centerx > WIDTH:
+            self.pos[0] = 0
+            self.rect.centerx = 0
