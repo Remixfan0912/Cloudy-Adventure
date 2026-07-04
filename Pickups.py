@@ -28,22 +28,22 @@ class Pickups(pygame.sprite.Sprite):
         self.buff = random.choice(list(PICKUP_NAME_LIST.keys()))
         self.image = pygame.transform.scale(pickup_list[self.buff], (pickup_list[self.buff].get_size()[0]/3, pickup_list[self.buff].get_size()[1]/3))
     
-        #* 定位道具(追蹤平台)
-        self.rect = self.image.get_rect()
-        self.rect.centerx = platform.rect.centerx
-        self.rect.bottom = platform.rect.top-1
-        
         #* 該道具跟隨的平台
         self.platform = platform
     
+        #* 定位道具(追蹤平台)
+        self.rect = self.image.get_rect()
+        self.rect.centerx = self.platform.rect.centerx
+        self.rect.bottom = self.platform.rect.top
+    
         #! pickup碰撞箱顯示
         # pygame.draw.rect(self.image, ORANGE, (0,0,self.rect.width,self.rect.height), 2)
-        
-        #* 道具pos，因為目前使用之velocity為int，不用計算float，故不採用pos
-        # self.pos = [float(self.rect.centerx), float(self.rect.centery)]
     
     def update(self):
-        self.rect.centery += self.platform.velocity[1]
-        self.rect.centerx += self.platform.velocity[0]
+        self.change_position()
         if self.rect.top > HEIGHT:
             self.kill()
+
+    def change_position(self):
+        self.rect.centery += self.platform.velocity[1]
+        self.rect.centerx += self.platform.velocity[0]
