@@ -62,7 +62,7 @@ class Player(pygame.sprite.Sprite):
     def update(self, platform_group, pickup_group):
         # self.hitbox()
         self.position_change()
-        self.penatrate()
+        self.penetrate()
         self.timer_detect()
         self.key_event()
         self.gravity()
